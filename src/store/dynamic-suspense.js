@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import loadable from '@loadable/component';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 
 function Loading() {
   const [loading, setLoading] = useState(false);
@@ -30,11 +29,13 @@ export default function({ store, component, models: m = () => [] }) {
     });
   };
 
-  const Component = loadable(loader, {
-    fallback: <Loading />,
-  });
+  const Component = lazy(loader);
   function DynamicWrapper({ ...props }) {
-    return <Component {...props} />;
+    return (
+      <Suspense fallback={<Loading />}>
+        <Component {...props} />
+      </Suspense>
+    );
   }
 
   return DynamicWrapper;
