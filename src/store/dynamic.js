@@ -1,60 +1,43 @@
-import React from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import Loadable from 'react-loadable';
 
-function Loading({ error, pastDelay, timeOut }) {
-  const retry = () => {};
-  if (error) {
-    console.error(error);
+function Loading() {
+  const [loading, setLoading] = useState(false);
 
-    return (
-      <div>
-        <p>加载失败</p>
-        <button onClick={retry} type="button">
-          重试
-        </button>
-      </div>
-    );
-  }
-  if (timeOut) {
-    return (
-      <div>
-        <p>加载超时</p>
-        <button onClick={retry} type="button">
-          重试
-        </button>
-      </div>
-    );
-  }
-  if (pastDelay) {
-    return <div>加载中...</div>;
-  }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(true);
+    }, 300);
 
-  return null;
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  return loading && <div>加载中...</div>;
 }
 
-Loading.propTypes = {
-  error: PropTypes.object,
-  pastDelay: PropTypes.bool,
-  timeOut: PropTypes.bool,
-};
-
 export default function({ store, component, models: m = () => [] }) {
-  return Loadable.Map({
-    loader: {
-      Component: component,
-      models: () => Promise.all(m()),
-    },
-    loading: Loading,
-    timeout: 10000,
-    render(loaded, props) {
-      const { Component, models } = loaded;
+  const loader = () => {
+    return Promise.all([component(), ...m()]).then(([c, ...models]) => {
+      if (models.length > 0) {
+        models.forEach(model => {
+          store.injectModel(model.default.namespace, model.default);
+        });
+      }
 
-      models.forEach(model => {
-        store.injectModel(model.default.namespace, model.default);
-      });
+      return c;
+    });
+  };
 
-      return <Component.default {...props} />;
-    },
-  });
+  const Component = lazy(loader);
+  function DynamicWrapper({ ...props }) {
+    return (
+      <Suspense fallback={<Loading />}>
+        <Component {...props} />
+      </Suspense>
+    );
+  }
+
+  return DynamicWrapper;
 }
