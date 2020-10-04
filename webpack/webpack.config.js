@@ -6,6 +6,8 @@ const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// 热更新
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 // 分析构建结果
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin');
@@ -404,6 +406,7 @@ module.exports = {
               ]
             : []),
           new webpack.HotModuleReplacementPlugin(),
+          new ReactRefreshWebpackPlugin(),
         ]
       : [new CleanWebpackPlugin()]),
   ],
