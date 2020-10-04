@@ -6,4 +6,4 @@ function Dashboard({ dashboard }) {
   return <div>hello {dashboard.name}</div>;
 }
 
-export default connect(({ dashboard }) => ({ dashboard }))(Dashboard);
+export default connect(({ dashboard, app }) => ({ dashboard, app }))(Dashboard);

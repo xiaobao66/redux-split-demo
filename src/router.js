@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import createStore from 'store/createStore';
 import { Provider } from 'react-redux';
-import dynamic from 'store/dynamic';
+import { hot } from 'react-hot-loader/root';
+import dynamic from 'store/dynamic-imported';
+import store from './store';
 import 'themes/default.less';
 import 'styles/index.scss';
-
-const store = createStore({});
 
 function renderRoutes(routes, parentPath = '') {
   return routes.reduce((memo, { path, childRoutes, component, models }) => {
@@ -59,4 +58,4 @@ function Routers() {
   );
 }
 
-export default Routers;
+export default hot(Routers);
